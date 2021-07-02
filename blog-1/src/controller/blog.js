@@ -1,38 +1,39 @@
+const { exec } = require('../db/mysql')
 const getList = (author, keyword) =>{
-    // 模拟数据
-    return [
-        {
-            id: 1,
-            title: '标题1',
-            content: '内容1',
-            createTime: 15252525252,
-            author: 'zhangsan'
-        },
-        {
-            id: 2,
-            title: '标题2',
-            content: '内容2',
-            createTime: 254871214541,
-            author: 'lisi'
-        }
-    ]
+    let sql = `select * from blogs where 1=1 `
+    if(author) {
+        sql += `and author='${author}' `
+    }
+    if(keyword){
+        sql += `and title like '%${keyword}%' `
+    }
+    sql += `order by createtime desc`
+
+    return exec(sql)
 }
 
 const getDetail = id =>{
-    return {
-        id: 1,
-        title: '标题1',
-        content: '内容1',
-        createTime: 15252525252,
-        author: 'zhangsan'
-    }
+    const sql = `select * from blogs where id='${id}'`
+    return exec(sql).then(rows =>{
+        return rows[0]
+    })
 }
 
 const newBlog = (blogData = {}) =>{
-    console.log(blogData)
-    return {
-        id: 3
-    }
+    const title = blogData.title
+    const content = blogData.content
+    const author = blogData.author
+    const createTime = Date.now()
+
+    const sql = `insert into blogs (title, content, createtime, author) 
+                values ('${title}', '${content}', '${createTime}', '${author}');`
+    
+    return exec(sql).then(insertDate =>{
+        console.log(insertDate)
+        return {
+            id: insertDate.insertId
+        }
+    })
 }
 
 const updateBlog = (id, blogData = {}) =>{
