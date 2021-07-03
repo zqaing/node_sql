@@ -1,4 +1,5 @@
 const { exec } = require('../db/mysql')
+
 const getList = (author, keyword) =>{
     let sql = `select * from blogs where 1=1 `
     if(author) {
@@ -29,7 +30,6 @@ const newBlog = (blogData = {}) =>{
                 values ('${title}', '${content}', '${createTime}', '${author}');`
     
     return exec(sql).then(insertDate =>{
-        console.log(insertDate)
         return {
             id: insertDate.insertId
         }
@@ -37,11 +37,29 @@ const newBlog = (blogData = {}) =>{
 }
 
 const updateBlog = (id, blogData = {}) =>{
-    return false
+    const title = blogData.title
+    const content = blogData.content
+
+    const sql = `update blogs set title='${title}', content='${content}' where id=${id}`
+
+    return exec(sql).then(updateData =>{
+        if(updateData.affectedRows > 0){
+            return true
+        }
+        return false
+    })
 }
 
-const delBlog = id =>{
-    return false
+const delBlog = (id, author) =>{
+    const sql = `delete from blogs where id=${id} and author='${author}'`
+
+    return exec(sql).then(data =>{
+        if(data.affectedRows > 0){
+            return true
+        }
+        return false
+    })
+    
 }
 
 module.exports = {
