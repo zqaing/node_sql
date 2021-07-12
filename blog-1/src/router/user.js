@@ -2,6 +2,7 @@ const { login } = require('../controller/user')
 const { SuccessModel, ErrorModel } = require('../model/resModel')
 
 
+
 const handleUserRouter = (req, res) =>{
     const method = req.method 
     
@@ -11,13 +12,11 @@ const handleUserRouter = (req, res) =>{
        const { username, password } = req.query
        const result = login(username, password)
 
-         
-
        return result.then(data =>{
            if(data.username){
-                // 操作cookie   httpOnly 只能在服务端修改cookie
-                res.setHeader('Set-Cookie', `username=${username}; path=/; httpOnly`)  
-
+                //  设置session  
+                req.session.username = data.username
+                req.session.realname = data.realname
                 return new SuccessModel()
             } else {
                 return new ErrorModel('登录失败') 
@@ -25,8 +24,8 @@ const handleUserRouter = (req, res) =>{
        })
     }
 
-    if(method === 'GET' && req.path === '/api/user/login-text'){
-        if(req.cookie.username){
+    if(method === 'GET' && req.path === '/api/user/login-test'){
+        if(req.session.username){
             return Promise.resolve(new SuccessModel()) 
         }
         return Promise.resolve(new ErrorModel('尚未登录'))
